@@ -2,37 +2,48 @@
 <html>
 
 <head>
-    <title>SaaS Super Admin | Mantu</title>
+    <title>SaaS Super Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
-<body class="bg-dark text-white p-5">
-    <div class="container card bg-light text-dark p-4 shadow" style="max-width: 600px;">
+<body class="bg-light p-5">
+    <div class="container card p-4 shadow-sm" style="max-width: 500px;">
         <h2 class="text-center">Register New Coaching</h2>
-        <hr>
-        <input type="text" id="name" class="form-control mb-3" placeholder="Coaching Name (e.g. Prem Classes)">
-        <input type="text" id="logo" class="form-control mb-3" placeholder="Logo Image URL">
-        <input type="text" id="color" class="form-control mb-3" placeholder="Theme Color Hex (e.g. #00FF00)">
-        <input type="email" id="email" class="form-control mb-3" placeholder="Teacher's Email">
-        <input type="text" id="key" class="form-control mb-3" placeholder="Unique Key (e.g. COACH_PREM_01)">
-        <button class="btn btn-primary w-100" onclick="register()">CREATE COACHING PLATFORM</button>
-        <div id="result" class="mt-3 text-success fw-bold"></div>
+        <input type="text" id="name" class="form-control mb-3" placeholder="Coaching Name">
+        <input type="text" id="color" class="form-control mb-3" placeholder="Theme Color (e.g. #1A73E8)">
+        <input type="text" id="key" class="form-control mb-3" placeholder="Unique Key (e.g. COACH_01)">
+        <button class="btn btn-primary w-100" onclick="register()">CREATE PLATFORM</button>
+        <div id="msg" class="mt-3"></div>
     </div>
 
     <script>
         async function register() {
+            const msgDiv = document.getElementById('msg');
             const data = {
                 name: document.getElementById('name').value,
-                logo: document.getElementById('logo').value,
-                primaryColor: document.getElementById('color').value,
-                adminEmail: document.getElementById('email').value,
-                apiKey: document.getElementById('key').value
+                primaryColor: document.getElementById('color').value || "#1A73E8",
+                apiKey: document.getElementById('key').value,
+                logo: "https://via.placeholder.com/150", // डिफ़ॉल्ट लोगो
+                adminEmail: "test@test.com"
             };
-            const res = await fetch("http://localhost:3000/api/superadmin/add-institute", {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-            if (res.ok) document.getElementById('result').innerText = "Coaching Created! ID: " + data.apiKey;
+
+            try {
+                const res = await fetch("https://pw-saas-backend.onrender.com/api/superadmin/add-institute", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await res.json();
+                if (res.ok) {
+                    msgDiv.innerHTML = `<b class="text-success">✅ Success! ID: ${result.apiKey} created.</b>`;
+                } else {
+                    // अगर 500 एरर आया है, तो यहाँ उसका असली कारण दिखेगा
+                    msgDiv.innerHTML = `<b class="text-danger">❌ Error: ${result.error}</b>`;
+                }
+            } catch (e) {
+                msgDiv.innerHTML = `<b class="text-danger">❌ Connection Failed!</b>`;
+            }
         }
     </script>
 </body>
